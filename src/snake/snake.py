@@ -25,7 +25,8 @@ canvas = tk.Canvas(
 canvas.pack()
 
 # Начальное состояние игры
-snake = [(100, 100), (90, 100), (80, 100)]
+#snake = [(100, 100), (90, 100), (80, 100)]
+snake = []
 direction = "Right"
 score = 0
 game_over = False
@@ -91,6 +92,8 @@ def on_key_press(event):
             key == "Left" and direction != "Right" or
             key == "Right" and direction != "Left"):
             direction = key
+    elif key =='space' and game_over:
+        restart_game()
 
 
 root.bind("<KeyPress>", on_key_press)
@@ -129,13 +132,58 @@ def end_game():
     )
 
 
+# Перезапуск игры
+def restart_game():
+    global snake, direction, food, score, game_over
+
+    # Начальное положение змейки
+    #snake = [(100, 100), (90, 100), (80, 100)]
+    snake = create_snake()
+    direction = "Right"
+
+    # Новая еда
+    food = create_food()
+
+    # Сброс счёта и статуса
+    score = 0
+    game_over = False
+
+    # Очистим холст и обновим
+    canvas.delete("all")
+    draw_food()
+    draw_snake()
+    update_title()
+
+    # Перезапускаем игровой цикл
+    root.after(DELAY, game_loop)
+
+
+# Проверка самостолкновения
+def check_self_collision():
+    return snake[0] in snake[1:]
+
+
+# Создание змейки
+def create_snake():
+    # Вычисляем максимальное значение по X и Y,
+    # чтобы вся змейка (3 клетки) уместилась в пределах поля
+    max_x = (WIDTH // CELL_SIZE) - 3
+    max_y = (HEIGHT // CELL_SIZE) - 1
+
+    # Случайная позиция головы змейки
+    x = random.randint(0, max_x) * CELL_SIZE
+    y = random.randint(0, max_y) * CELL_SIZE
+
+    # Возвращаем список из 3 сегментов змейки, направленных вправо
+    return [(x, y), (x - CELL_SIZE, y), (x - 2 * CELL_SIZE, y)]
+
 # Игровой цикл
 def game_loop():
     global snake, food, score
     if game_over:
         return
     move_snake()
-    if check_wall_collision():
+    if check_wall_collision() or check_self_collision():
         end_game()
         return
     canvas.delete("all")
@@ -146,6 +194,7 @@ def game_loop():
 
 
 # Запуск игрового цикла
+snake = create_snake()
 draw_food()
 draw_snake()
 root.after(DELAY, game_loop)
