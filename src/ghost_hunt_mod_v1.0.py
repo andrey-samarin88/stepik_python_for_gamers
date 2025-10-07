@@ -37,11 +37,9 @@ rested = False
 # Комната в которой находится игрок
 current_room = random.choice(rooms)
 
-# Список комнат в которые игрок может перейти (здесь творится какая то необъяснимая дичь!!!)
-evailable_rooms = []
-evailable_rooms = evailable_rooms + rooms
+# Список комнат в которые игрок может перейти
+evailable_rooms = rooms[:]  # Если написать просто rooms (без среза), то remove удалит элемент из списка rooms тоже!!!
 evailable_rooms.remove(current_room)
-
 # Комнаты с укрытием
 hiding_spots = random.sample(rooms, k=3)
 
